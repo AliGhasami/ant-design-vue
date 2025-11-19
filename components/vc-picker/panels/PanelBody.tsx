@@ -52,6 +52,7 @@ function PanelBody<DateType>(_props: PanelBodyProps<DateType>) {
   const { onDateMouseenter, onDateMouseleave, mode } = useInjectPanel();
 
   const cellPrefixCls = `${prefixCls}-cell`;
+  console.log('base', baseDate.format());
 
   // =============================== Body ===============================
   const rows: VueNode[] = [];
@@ -62,7 +63,9 @@ function PanelBody<DateType>(_props: PanelBodyProps<DateType>) {
 
     for (let j = 0; j < colNum; j += 1) {
       const offset = i * colNum + j;
+      console.log('offset', offset);
       const currentDate = getCellDate(baseDate, offset);
+      console.log('current date', currentDate.format());
       const disabled = getCellDateDisabled({
         cellDate: currentDate,
         mode: mode.value,
@@ -72,6 +75,7 @@ function PanelBody<DateType>(_props: PanelBodyProps<DateType>) {
 
       if (j === 0) {
         rowStartDate = currentDate;
+        console.log('aaaa', rowStartDate);
 
         if (prefixColumn) {
           row.push(prefixColumn(rowStartDate));
@@ -110,10 +114,11 @@ function PanelBody<DateType>(_props: PanelBodyProps<DateType>) {
             }
           }}
         >
+          {/*getCellNode(currentDate)*/}r
           {getCellNode ? (
             getCellNode(currentDate)
           ) : (
-            <div class={`${cellPrefixCls}-inner`}>{getCellText(currentDate)}</div>
+            <div class={`${cellPrefixCls}-inner`}>{getCellText(currentDate)}o55</div>
           )}
         </td>,
       );
