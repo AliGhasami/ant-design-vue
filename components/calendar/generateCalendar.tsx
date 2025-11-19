@@ -268,7 +268,7 @@ function generateCalendar<
               )}
             >
               <div class={`${calendarPrefixCls.value}-date-value`}>
-                {String(generateConfig.getDate(date)).padStart(2, '0')}
+                {String(generateConfig.getDate(date)).padStart(2, '0')}t
               </div>
               <div class={`${calendarPrefixCls.value}-date-content`}>
                 {dateCellRender && dateCellRender({ current: date })}
@@ -295,10 +295,10 @@ function generateCalendar<
               )}
             >
               <div class={`${calendarPrefixCls.value}-date-value`}>
-                {months[generateConfig.getMonth(date)]}
+                {months[generateConfig.getMonth(date)]}b
               </div>
               <div class={`${calendarPrefixCls.value}-date-content`}>
-                {monthCellRender && monthCellRender({ current: date })}
+                {monthCellRender && monthCellRender({ current: date })}a
               </div>
             </div>
           );
@@ -339,6 +339,7 @@ function generateCalendar<
                 onModeChange={triggerModeChange}
               />
             )}
+            111111
             <PickerPanel
               value={mergedValue.value}
               prefixCls={prefixCls.value}

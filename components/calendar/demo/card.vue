@@ -17,7 +17,9 @@ Nested inside a container element for rendering in limited space.
 
 <template>
   <div :style="{ width: '300px', border: '1px solid #d9d9d9', borderRadius: '4px' }">
+    {{ value?.format() }}
     <a-calendar v-model:value="value" :fullscreen="false" @panelChange="onPanelChange" />
+    <a-time-picker v-model:value="value" />
   </div>
 </template>
 <script lang="ts" setup>

@@ -7,9 +7,13 @@ import weekYear from 'dayjs/plugin/weekYear';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import type { GenerateConfig } from '.';
 import { noteOnce } from '../../vc-util/warning';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
@@ -17,6 +21,8 @@ dayjs.extend(localeData);
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
 dayjs.extend(quarterOfYear);
+
+const TIMEZONE = 'Canada/Atlantic';
 
 dayjs.extend((_o, c) => {
   // todo support Wo (ISO week)
@@ -125,10 +131,10 @@ function findTargetStr(val: string, index: number, segmentation: string) {
 const toDateWithValueFormat = (val: string | Dayjs, valueFormat: string) => {
   if (!val) return null;
   if (dayjs.isDayjs(val)) {
-    return val;
+    return val.tz(TIMEZONE);
   }
   const matchs = valueFormat.matchAll(advancedFormatRegex);
-  let baseDate = dayjs(val, valueFormat);
+  let baseDate = dayjs.tz(val, valueFormat, TIMEZONE);
   if (matchs === null) {
     return baseDate;
   }
@@ -162,42 +168,45 @@ const toDateWithValueFormat = (val: string | Dayjs, valueFormat: string) => {
 
 const generateConfig: GenerateConfig<Dayjs> = {
   // get
-  getNow: () => dayjs(),
-  getFixedDate: string => dayjs(string, ['YYYY-M-DD', 'YYYY-MM-DD']),
-  getEndDate: date => date.endOf('month'),
+  getNow: () => dayjs().tz(TIMEZONE),
+  getFixedDate: string => dayjs(string, ['YYYY-M-DD', 'YYYY-MM-DD']).tz(TIMEZONE),
+  getEndDate: date => date.tz(TIMEZONE).endOf('month'),
   getWeekDay: date => {
-    const clone = date.locale('en');
+    const clone = date.tz(TIMEZONE).locale('en');
     return clone.weekday() + clone.localeData().firstDayOfWeek();
   },
-  getYear: date => date.year(),
-  getMonth: date => date.month(),
-  getDate: date => date.date(),
-  getHour: date => date.hour(),
-  getMinute: date => date.minute(),
-  getSecond: date => date.second(),
+  getYear: date => date.tz(TIMEZONE).year(),
+  getMonth: date => date.tz(TIMEZONE).month(),
+  getDate: date => date.tz(TIMEZONE).date(),
+  getHour: date => date.tz(TIMEZONE).hour(),
+  getMinute: date => date.tz(TIMEZONE).minute(),
+  getSecond: date => date.tz(TIMEZONE).second(),
 
   // set
-  addYear: (date, diff) => date.add(diff, 'year'),
-  addMonth: (date, diff) => date.add(diff, 'month'),
-  addDate: (date, diff) => date.add(diff, 'day'),
-  setYear: (date, year) => date.year(year),
-  setMonth: (date, month) => date.month(month),
-  setDate: (date, num) => date.date(num),
-  setHour: (date, hour) => date.hour(hour),
-  setMinute: (date, minute) => date.minute(minute),
-  setSecond: (date, second) => date.second(second),
+  addYear: (date, diff) => date.tz(TIMEZONE).add(diff, 'year'),
+  addMonth: (date, diff) => date.tz(TIMEZONE).add(diff, 'month'),
+  addDate: (date, diff) => date.tz(TIMEZONE).add(diff, 'day'),
+  setYear: (date, year) => date.tz(TIMEZONE).year(year),
+  setMonth: (date, month) => date.tz(TIMEZONE).month(month),
+  setDate: (date, num) => date.tz(TIMEZONE).date(num),
+  setHour: (date, hour) => date.tz(TIMEZONE).hour(hour),
+  setMinute: (date, minute) => date.tz(TIMEZONE).minute(minute),
+  setSecond: (date, second) => date.tz(TIMEZONE).second(second),
 
   // Compare
-  isAfter: (date1, date2) => date1.isAfter(date2),
-  isValidate: date => date.isValid(),
+  isAfter: (date1, date2) => date1.tz(TIMEZONE).isAfter(date2.tz(TIMEZONE)),
+  isValidate: date => date.tz(TIMEZONE).isValid(),
 
   locale: {
-    getWeekFirstDay: locale => dayjs().locale(parseLocale(locale)).localeData().firstDayOfWeek(),
-    getWeekFirstDate: (locale, date) => date.locale(parseLocale(locale)).weekday(0),
-    getWeek: (locale, date) => date.locale(parseLocale(locale)).week(),
-    getShortWeekDays: locale => dayjs().locale(parseLocale(locale)).localeData().weekdaysMin(),
-    getShortMonths: locale => dayjs().locale(parseLocale(locale)).localeData().monthsShort(),
-    format: (locale, date, format) => date.locale(parseLocale(locale)).format(format),
+    getWeekFirstDay: locale =>
+      dayjs().tz(TIMEZONE).locale(parseLocale(locale)).localeData().firstDayOfWeek(),
+    getWeekFirstDate: (locale, date) => date.tz(TIMEZONE).locale(parseLocale(locale)).weekday(0),
+    getWeek: (locale, date) => date.tz(TIMEZONE).locale(parseLocale(locale)).week(),
+    getShortWeekDays: locale =>
+      dayjs().tz(TIMEZONE).locale(parseLocale(locale)).localeData().weekdaysMin(),
+    getShortMonths: locale =>
+      dayjs().tz(TIMEZONE).locale(parseLocale(locale)).localeData().monthsShort(),
+    format: (locale, date, format) => date.tz(TIMEZONE).locale(parseLocale(locale)).format(format),
     parse: (locale, text, formats) => {
       const localeStr = parseLocale(locale);
       for (let i = 0; i < formats.length; i += 1) {
@@ -207,7 +216,7 @@ const generateConfig: GenerateConfig<Dayjs> = {
           // parse Wo
           const year = formatText.split('-')[0];
           const weekStr = formatText.split('-')[1];
-          const firstWeek = dayjs(year, 'YYYY').startOf('year').locale(localeStr);
+          const firstWeek = dayjs.tz(year, 'YYYY', TIMEZONE).startOf('year').locale(localeStr);
           for (let j = 0; j <= 52; j += 1) {
             const nextWeek = firstWeek.add(j, 'week');
             if (nextWeek.format('Wo') === weekStr) {
@@ -217,7 +226,7 @@ const generateConfig: GenerateConfig<Dayjs> = {
           parseNoMatchNotice();
           return null;
         }
-        const date = dayjs(formatText, format, true).locale(localeStr);
+        const date = dayjs.tz(formatText, format, TIMEZONE).locale(localeStr);
         if (date.isValid()) {
           return date;
         }
@@ -239,9 +248,11 @@ const generateConfig: GenerateConfig<Dayjs> = {
   },
   toString: (value, valueFormat) => {
     if (Array.isArray(value)) {
-      return value.map((val: any) => (dayjs.isDayjs(val) ? val.format(valueFormat) : val));
+      return value.map((val: any) =>
+        dayjs.isDayjs(val) ? val.tz(TIMEZONE).format(valueFormat) : val,
+      );
     } else {
-      return dayjs.isDayjs(value) ? value.format(valueFormat) : value;
+      return dayjs.isDayjs(value) ? value.tz(TIMEZONE).format(valueFormat) : value;
     }
   },
 };
