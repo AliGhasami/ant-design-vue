@@ -177,15 +177,7 @@ const generateConfig: GenerateConfig<Dayjs> = {
   },
   getYear: date => date.tz(TIMEZONE).year(),
   getMonth: date => date.tz(TIMEZONE).month(),
-  getDate: date => {
-    return date.format('D');
-    if (date.tz(TIMEZONE).format('D') == 2) {
-      debugger;
-    }
-    console.log('||||||', date.format(), date.tz(TIMEZONE).date(), date.tz(TIMEZONE).format('D'));
-    //const temp=
-    return date.tz(TIMEZONE).format('D');
-  },
+  getDate: date => date.tz(TIMEZONE).date(),
   getHour: date => date.tz(TIMEZONE).hour(),
   getMinute: date => date.tz(TIMEZONE).minute(),
   getSecond: date => date.tz(TIMEZONE).second(),
