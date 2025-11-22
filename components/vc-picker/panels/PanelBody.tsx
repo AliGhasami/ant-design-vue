@@ -78,7 +78,7 @@ function PanelBody<DateType>(_props: PanelBodyProps<DateType>) {
         }
       }
 
-      const title = titleCell && titleCell(currentDate);
+      const title = currentDate.format(); //titleCell && titleCell(currentDate);
 
       row.push(
         <td
@@ -94,6 +94,9 @@ function PanelBody<DateType>(_props: PanelBodyProps<DateType>) {
             ...getCellClassName(currentDate),
           })}
           onClick={e => {
+            console.log('22222', baseDate, baseDate.format());
+            console.log('11111', currentDate, currentDate.format());
+            debugger;
             e.stopPropagation();
             if (!disabled) {
               onSelect(currentDate);
@@ -110,10 +113,11 @@ function PanelBody<DateType>(_props: PanelBodyProps<DateType>) {
             }
           }}
         >
+          {/*{currentDate?.format()}*/}
           {getCellNode ? (
             getCellNode(currentDate)
           ) : (
-            <div class={`${cellPrefixCls}-inner`}>{getCellText(currentDate)}</div>
+            <div class={`${cellPrefixCls}-inner`}>{getCellText(currentDate)}t</div>
           )}
         </td>,
       );
@@ -134,7 +138,7 @@ function PanelBody<DateType>(_props: PanelBodyProps<DateType>) {
             <tr>{headerCells}</tr>
           </thead>
         )}
-        <tbody>{rows}</tbody>
+        <tbody>{rows}5</tbody>
       </table>
     </div>
   );

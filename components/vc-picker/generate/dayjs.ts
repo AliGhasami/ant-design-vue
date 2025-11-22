@@ -145,21 +145,29 @@ const toDateWithValueFormat = (val: string | Dayjs, valueFormat: string) => {
     if (origin === 'Q') {
       const segmentation = val.slice(index - 1, index);
       const quarterStr = findTargetStr(val, index, segmentation).match(/\d+/)[0];
-      baseDate = baseDate.quarter(parseInt(quarterStr));
+      // Convert to UTC first, set quarter, then convert back to timezone
+      const utcDate = baseDate.utc();
+      baseDate = utcDate.quarter(parseInt(quarterStr)).tz(TIMEZONE);
     }
 
     if (origin.toLowerCase() === 'wo') {
       const segmentation = val.slice(index - 1, index);
       const weekStr = findTargetStr(val, index, segmentation).match(/\d+/)[0];
-      baseDate = baseDate.week(parseInt(weekStr));
+      // Convert to UTC first, set week, then convert back to timezone
+      const utcDate = baseDate.utc();
+      baseDate = utcDate.week(parseInt(weekStr)).tz(TIMEZONE);
     }
 
     if (origin.toLowerCase() === 'ww') {
-      baseDate = baseDate.week(parseInt(val.slice(index, index + origin.length)));
+      // Convert to UTC first, set week, then convert back to timezone
+      const utcDate = baseDate.utc();
+      baseDate = utcDate.week(parseInt(val.slice(index, index + origin.length))).tz(TIMEZONE);
     }
 
     if (origin.toLowerCase() === 'w') {
-      baseDate = baseDate.week(parseInt(val.slice(index, index + origin.length + 1)));
+      // Convert to UTC first, set week, then convert back to timezone
+      const utcDate = baseDate.utc();
+      baseDate = utcDate.week(parseInt(val.slice(index, index + origin.length + 1))).tz(TIMEZONE);
     }
   }
 
@@ -170,7 +178,14 @@ const generateConfig: GenerateConfig<Dayjs> = {
   // get
   getNow: () => dayjs().tz(TIMEZONE),
   getFixedDate: string => dayjs(string, ['YYYY-M-DD', 'YYYY-MM-DD']).tz(TIMEZONE),
-  getEndDate: date => date.tz(TIMEZONE).endOf('month'),
+  getEndDate: date => {
+    // Convert to UTC first, get end of month, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const endUtc = utcDate.endOf('month');
+    return endUtc.tz(TIMEZONE);
+  },
   getWeekDay: date => {
     const clone = date.tz(TIMEZONE).locale('en');
     return clone.weekday() + clone.localeData().firstDayOfWeek();
@@ -183,15 +198,78 @@ const generateConfig: GenerateConfig<Dayjs> = {
   getSecond: date => date.tz(TIMEZONE).second(),
 
   // set
-  addYear: (date, diff) => date.tz(TIMEZONE).add(diff, 'year'),
-  addMonth: (date, diff) => date.tz(TIMEZONE).add(diff, 'month'),
-  addDate: (date, diff) => date.tz(TIMEZONE).add(diff, 'day'),
-  setYear: (date, year) => date.tz(TIMEZONE).year(year),
-  setMonth: (date, month) => date.tz(TIMEZONE).month(month),
-  setDate: (date, num) => date.tz(TIMEZONE).date(num),
-  setHour: (date, hour) => date.tz(TIMEZONE).hour(hour),
-  setMinute: (date, minute) => date.tz(TIMEZONE).minute(minute),
-  setSecond: (date, second) => date.tz(TIMEZONE).second(second),
+  addYear: (date, diff) => {
+    // Convert to UTC first to preserve exact time, add years, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const addedUtc = utcDate.add(diff, 'year');
+    return addedUtc.tz(TIMEZONE);
+  },
+  addMonth: (date, diff) => {
+    // Convert to UTC first to preserve exact time, add months, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const addedUtc = utcDate.add(diff, 'month');
+    return addedUtc.tz(TIMEZONE);
+  },
+  addDate: (date, diff) => {
+    // Convert to UTC first to preserve exact time, add days, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const addedUtc = utcDate.add(diff, 'day');
+    return addedUtc.tz(TIMEZONE);
+  },
+  setYear: (date, year) => {
+    // Convert to UTC first to preserve exact time, set year, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const setUtc = utcDate.year(year);
+    return setUtc.tz(TIMEZONE);
+  },
+  setMonth: (date, month) => {
+    // Convert to UTC first to preserve exact time, set month, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const setUtc = utcDate.month(month);
+    return setUtc.tz(TIMEZONE);
+  },
+  setDate: (date, num) => {
+    // Convert to UTC first to preserve exact time, set date, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const setUtc = utcDate.date(num);
+    return setUtc.tz(TIMEZONE);
+  },
+  setHour: (date, hour) => {
+    // Convert to UTC first to preserve exact time, set hour, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const setUtc = utcDate.hour(hour);
+    return setUtc.tz(TIMEZONE);
+  },
+  setMinute: (date, minute) => {
+    // Convert to UTC first to preserve exact time, set minute, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const setUtc = utcDate.minute(minute);
+    return setUtc.tz(TIMEZONE);
+  },
+  setSecond: (date, second) => {
+    // Convert to UTC first to preserve exact time, set second, then convert back to timezone
+    // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+    const dateInTz = date.tz(TIMEZONE);
+    const utcDate = dateInTz.utc();
+    const setUtc = utcDate.second(second);
+    return setUtc.tz(TIMEZONE);
+  },
 
   // Compare
   isAfter: (date1, date2) => date1.tz(TIMEZONE).isAfter(date2.tz(TIMEZONE)),
@@ -200,7 +278,14 @@ const generateConfig: GenerateConfig<Dayjs> = {
   locale: {
     getWeekFirstDay: locale =>
       dayjs().tz(TIMEZONE).locale(parseLocale(locale)).localeData().firstDayOfWeek(),
-    getWeekFirstDate: (locale, date) => date.tz(TIMEZONE).locale(parseLocale(locale)).weekday(0),
+    getWeekFirstDate: (locale, date) => {
+      // Convert to UTC first, set weekday, then convert back to timezone
+      // This ensures timezone offset is recalculated correctly for the new date (handles DST transitions)
+      const dateInTz = date.tz(TIMEZONE);
+      const utcDate = dateInTz.utc();
+      const weekFirstUtc = utcDate.locale(parseLocale(locale)).weekday(0);
+      return weekFirstUtc.tz(TIMEZONE);
+    },
     getWeek: (locale, date) => date.tz(TIMEZONE).locale(parseLocale(locale)).week(),
     getShortWeekDays: locale =>
       dayjs().tz(TIMEZONE).locale(parseLocale(locale)).localeData().weekdaysMin(),
@@ -216,9 +301,12 @@ const generateConfig: GenerateConfig<Dayjs> = {
           // parse Wo
           const year = formatText.split('-')[0];
           const weekStr = formatText.split('-')[1];
-          const firstWeek = dayjs.tz(year, 'YYYY', TIMEZONE).startOf('year').locale(localeStr);
+          const firstWeekTz = dayjs.tz(year, 'YYYY', TIMEZONE).startOf('year').locale(localeStr);
+          // Convert to UTC for accurate week calculations across DST transitions
+          const firstWeekUtc = firstWeekTz.utc();
           for (let j = 0; j <= 52; j += 1) {
-            const nextWeek = firstWeek.add(j, 'week');
+            const nextWeekUtc = firstWeekUtc.add(j, 'week');
+            const nextWeek = nextWeekUtc.tz(TIMEZONE);
             if (nextWeek.format('Wo') === weekStr) {
               return nextWeek;
             }
@@ -256,5 +344,10 @@ const generateConfig: GenerateConfig<Dayjs> = {
     }
   },
 };
+
+/*setTimeout(() => {
+  console.log("today is",dayjs().format());
+  console.log("today is",dayjs().tz(TIMEZONE).format());
+}, 5000);*/
 
 export default generateConfig;

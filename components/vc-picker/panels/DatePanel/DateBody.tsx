@@ -42,6 +42,7 @@ function DateBody<DateType>(_props: DateBodyProps<DateType>) {
   const { rangedValue, hoverRangedValue } = useInjectRange();
 
   const baseDate = getWeekStartDate(locale.locale, generateConfig, viewDate);
+  //console.log("33333",);
   const cellPrefixCls = `${prefixCls}-cell`;
   const weekFirstDay = generateConfig.locale.getWeekFirstDay(locale.locale);
   const today = generateConfig.getNow();

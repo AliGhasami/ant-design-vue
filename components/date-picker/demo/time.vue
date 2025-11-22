@@ -18,7 +18,14 @@ This property provide an additional time selection. When `showTime` is an Object
 
 <template>
   <a-space direction="vertical" :size="12">
-    <a-date-picker show-time placeholder="Select Time" @change="onChange" @ok="onOk" />
+    {{ temp?.format() }}
+    <a-date-picker
+      v-model:value="temp"
+      show-time
+      placeholder="Select Time"
+      @change="onChange"
+      @ok="onOk"
+    />
     <a-range-picker
       :show-time="{ format: 'HH:mm' }"
       format="YYYY-MM-DD HH:mm"
@@ -30,6 +37,9 @@ This property provide an additional time selection. When `showTime` is an Object
 </template>
 <script lang="ts" setup>
 import { Dayjs } from 'dayjs';
+import { ref } from 'vue';
+
+const temp = ref();
 
 const onChange = (value: Dayjs, dateString: string) => {
   console.log('Selected Time: ', value);

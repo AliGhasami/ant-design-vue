@@ -161,6 +161,8 @@ export function getWeekStartDate<DateType>(
   generateConfig: GenerateConfig<DateType>,
   value: DateType,
 ) {
+  console.log('aaaaa', value, value.format());
+  debugger;
   const weekFirstDay = generateConfig.locale.getWeekFirstDay(locale);
   const monthStartDate = generateConfig.setDate(value, 1);
   const startDateWeekDay = generateConfig.getWeekDay(monthStartDate);
@@ -173,7 +175,7 @@ export function getWeekStartDate<DateType>(
   ) {
     alignStartDate = generateConfig.addDate(alignStartDate, -7);
   }
-
+  console.log('33333', alignStartDate, alignStartDate.format());
   return alignStartDate;
 }
 
